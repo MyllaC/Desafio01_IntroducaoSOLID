@@ -6,14 +6,18 @@ class ListAllUsersController {
   constructor(private listAllUsersUseCase: ListAllUsersUseCase) {}
 
   handle(request: Request, response: Response): Response {
-    const userIDAlreadyExists = this.usersRepository.findById(user_id);
+    const { user_id } = request.headers;
 
-    if (!userIDAlreadyExists.admin) {
-      throw new Error("Only admins can access the list.");
+    try {
+      const all = this.listAllUsersUseCase.execute({
+        user_id: String(user_id),
+      });
+
+      return response.json(all);
+    } catch (err) {
+      return response.status(400).json({ error: err });
     }
-
-    const allUsers = this.listAllUsersUseCase.execute()
-    return response.json(allUsers);
+  }
 }
 
 export { ListAllUsersController };
